@@ -11,11 +11,11 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CalculatorButton: typeof import('./src/components/button/CalculatorButton.vue')['default']
     CalculatorButtons: typeof import('./src/components/button/CalculatorButtons.vue')['default']
-    Contents: typeof import('./src/components/Contents.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
     FormulaInput: typeof import('./src/components/input/FormulaInput.vue')['default']
+    NoodleContents: typeof import('./src/components/NoodleContents.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Title: typeof import('./src/components/Title.vue')['default']

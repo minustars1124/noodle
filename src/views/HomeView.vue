@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Contents from '../components/Contents.vue'
+import NoodleContents from '../components/NoodleContents.vue'
 </script>
 
 <template>
   <main>
-    <Contents />
+    <NoodleContents />
   </main>
 </template>

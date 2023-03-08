@@ -133,6 +133,7 @@ const enter = () => {
       buttonStatus.value.set(value, "info")
     }
   }
+  // 試行回数をインクリメント
   count.value += 1
   if (status.value[count.value - 1].every(st => st === "success")) {
     console.log("You've finished eating Noodle!")
