@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CalculatorButton from './CalculatorButton.vue'
 const props = defineProps<{
+  mode: string
   status: Map<string, string>
 }>()
 /**
@@ -49,11 +50,22 @@ const enter = () => {
       <CalculatorButton word="9" :status="updateStatus('9')" @click="setSquares('9')"/>
       <CalculatorButton word="0" :status="updateStatus('0')" @click="setSquares('0')"/>
     </div>
+    <div v-show="mode === 'future1'" class="calculator-buttons__calculus">
+      <CalculatorButton word="∫" :status="updateStatus('∫')" @click="setSquares('∫')"/>
+      <CalculatorButton word="x" :status="updateStatus('x')" @click="setSquares('x')"/>
+      <CalculatorButton word="dx" :status="updateStatus('dx')" @click="setSquares('dx')"/>
+    </div>
+    <div v-show="mode === 'future2'" class="calculator-buttons__metric">
+      <CalculatorButton word="k" :status="updateStatus('k')" @click="setSquares('k')"/>
+      <CalculatorButton word="m" :status="updateStatus('m')" @click="setSquares('m')"/>
+      <CalculatorButton word="g" :status="updateStatus('g')" @click="setSquares('g')"/>
+    </div>
     <div class="calculator-buttons__symbol">
       <CalculatorButton word="+" :status="updateStatus('+')" @click="setSquares('+')"/>
       <CalculatorButton word="-" :status="updateStatus('-')" @click="setSquares('-')"/>
       <CalculatorButton word="*" :status="updateStatus('*')" @click="setSquares('*')"/>
       <CalculatorButton word="/" :status="updateStatus('/')" @click="setSquares('/')"/>
+      <CalculatorButton v-show="mode === 'future1'" word="^" :status="updateStatus('^')" @click="setSquares('^')"/>
       <CalculatorButton word="=" :status="updateStatus('=')" @click="setSquares('=')"/>
       <CalculatorButton word="Enter" @click="enter"/>
       <CalculatorButton word="Delete" @click="setSquares('')"/>

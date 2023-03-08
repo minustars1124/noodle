@@ -5,6 +5,7 @@ import FormulaInput from '@/components/input/FormulaInput.vue'
 import CalculatorButtons from '@/components/button/CalculatorButtons.vue'
 
 const props = defineProps<{
+  mode: string,
   trialCount: number,
   wordLength: number,
   answerFormula: Array<String>,
@@ -160,6 +161,8 @@ const isCorrect = () => {
     return false
   }
   // TODO: 逆ポーランド記法で入力した数式の等号が成り立つかを確認する処理を実装
+  // TODO: mode が future1 の場合、微積の等号が成り立つかを確認する処理を実装
+  // TODO: mode が future2 の場合、メートル法の等号が成り立つかを確認する処理を実装
   return true
 }
 /**
@@ -191,7 +194,7 @@ const isGameOver = () => {
       </div>
     </div>
     <!-- ボタン -->
-    <CalculatorButtons :status="buttonStatus" @setSquares="setSquares" @enter="enter"/>
+    <CalculatorButtons :mode="mode" :status="buttonStatus" @setSquares="setSquares" @enter="enter"/>
   </div>
 </template>
 

@@ -1,9 +1,11 @@
 {
   "name": "noodle",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "vite",
+    "future1": "vite --mode future1",
+    "future2": "vite --mode future2",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
