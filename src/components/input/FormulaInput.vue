@@ -2,6 +2,7 @@
 import {ref, computed} from 'vue'
 
 const props = defineProps<{
+  mode: string
   row: number
   column: number
   squares: Array<string>
@@ -30,8 +31,19 @@ const model = computed({
  * @param value 文字列
  */
 const formatter = (value: string,) => {
-  // 数字と四則計算、等号以外は設定できないように置換
-  return value.replace(/[^\d+\-*/=]/g, '')
+  switch (props.mode) {
+    // 数字と四則計算、等号以外は設定できないように置換する
+    case 'future1':
+      // 微積の記号も対象とする
+      return value.replace(/[^\d+\-*/=^dxI∫]/g, '')
+          .replace(/[d]/g, 'dx')
+          .replace(/[I]/g, '∫')
+    case 'future2':
+      // メートル法の記号も対象とする
+      return value.replace(/[^\d+\-*/=mkg]/g, '')
+    default:
+      return value.replace(/[^\d+\-*/=]/g, '')
+  }
 }
 /**
  * 入力欄にフォーカスした場合の処理を実行します。

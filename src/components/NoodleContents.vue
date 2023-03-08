@@ -189,7 +189,7 @@ const isGameOver = () => {
     <!-- 入力欄 -->
     <div class="contents__input" :style="{'--word-length': props.wordLength}">
       <div v-for="i of props.trialCount" :key="i" class="contents__input__row">
-        <FormulaInput :row="i" :column="props.wordLength" :squares="formula[i-1]" :status="status[i-1]"
+        <FormulaInput :mode="mode" :row="i" :column="props.wordLength" :squares="formula[i-1]" :status="status[i-1]"
                       :is-disabled="count !== i-1 || isFinished" @focus="focus" @update="update"/>
       </div>
     </div>
