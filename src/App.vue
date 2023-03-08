@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import Title from './components/Title.vue'
 </script>
 
 <template>
   <header>
     <div class="wrapper">
-      <HelloWorld title="Noodle" subtitle="Like Nerdle, Not Needle"/>
+      <Title title="Noodle" subtitle="Like Nerdle, Not Needle"/>
     </div>
   </header>
-
-  <RouterView />
+  <RouterView/>
 </template>
 
 <style scoped lang="scss">

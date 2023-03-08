@@ -153,10 +153,10 @@ const enter = () => {
 </script>
 
 <template>
-  <div class="welcome">
+  <div class="contents">
     <!-- 入力欄 -->
-    <div class="welcome__input">
-      <div v-for="i of 6" :key="i" class="welcome__input__row">
+    <div class="contents__input">
+      <div v-for="i of 6" :key="i" class="contents__input__row">
         <FormulaInput :row="i" :column="8" :squares="formula[i-1]" :status="status[i-1]"
                       :is-disabled="count !== i-1 || isFinished" @focus="focus" @update="update"/>
       </div>
@@ -167,7 +167,7 @@ const enter = () => {
 </template>
 
 <style scoped lang="scss">
-.welcome {
+.contents {
   display: flex;
   flex-direction: column;
   align-items: center;
