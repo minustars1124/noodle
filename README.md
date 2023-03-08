@@ -1,46 +1,98 @@
 # noodle
 
-This template should help get you started developing with Vue 3 in Vite.
+Nerdle を参考に実装しました。
 
-## Recommended IDE Setup
+* 6 回の試行回数で 8 文字で構成される数式を当てるパズルゲーム
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## サービス概要
 
-## Type Support for `.vue` Imports in TS
+* 数式を当てるゲーム
+  * 数字、四則計算と等号の記号を選択し、回答します
+  * 回答した内容と正解を比較し、その結果を表示します
+    * 回答した文字と位置が正解と一致していれば、その文字とボタンを緑でマークします
+    * 回答した文字が正解に含まれていれば、その文字とボタンを青でマークします
+    * 回答した文字が正解に含まれていなければ、その文字とボタンを灰色でマークします
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+## サービス構成
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+* パッケージ管理
+  * npm
+* Javascript フレームワーク
+  * Vue 3
+    * フロントエンドビルドツール
+      * Vite
+    * UI ライブラリ
+      * Element-Plus
+    * スタイルシート
+      * sass
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## システム構成
 
-## Customize configuration
+AWS 上での動作を前提とします。
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+* S3
+  * ビルドした Web ページをアップロード
+* CloudFront
+  * S3 で保存されているファイルを静的 Web サイトとして参照
+* Lambda@Edge
+  * Vue で設定したパスと参照するファイルに応じてルーティングを設定
 
-## Project Setup
+## 開発環境の準備
 
-```sh
+```
+# 起動に必要なパッケージをインストール
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+## 開発環境での動作確認
 
-```sh
+```
+# コンパイルし開発環境でビルド
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+* コンソールの表示に従い、ビルドした Web ページを確認
+    * 通常であれば、http://localhost:5173/ で参照できます
 
-```sh
-npm run build
-```
+## 機能拡張
 
-### Lint with [ESLint](https://eslint.org/)
+* 特定の期間毎に問題を配信する機能
+* ユーザの情報を保存する機能
+* ユーザがこれまでに実施した問題の数と、回答までにかかった回数を確認する機能
+* プレイしているユーザのランキングを表示する機能
 
-```sh
-npm run lint
-```
+## システム拡張
+
+機能拡張で提案した内容を実現するためには、データベースおよび API サーバが必要になります。
+
+* データベース
+  * RDS
+    * リレーショナル・データベースを利用し、毎日の問題やユーザ情報を保存・参照できるようにします
+* API サーバ
+  * ECR
+    * RDS への参照や保存を行うプログラムをコンテナビルドした成果物をアップロードします
+  * Lambda
+    * リクエストが小規模であるとした場合、ECR にアップロードしたコンテナをサーバレスで起動します
+  * API Gateway
+    * URL からアクセスすることで Lambda 関数を呼び出します
+
+### データベース構成
+
+* 問題を保存するテーブル
+  * 主キー
+    * 年月日
+  * カラム
+    * 問題
+* ユーザ情報を保存するテーブル
+  * 主キー
+    * ユーザID
+  * カラム
+    * パスワード
+    * 最終ログイン日時
+* ユーザの回答結果を保存するテーブル
+  * 主キー
+    * ユーザID
+    * 年月日
+  * カラム
+    * 正解までにかかった回数
+    * 問題を終了した日時
