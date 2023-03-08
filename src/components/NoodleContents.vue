@@ -4,8 +4,13 @@ import {ElMessage} from 'element-plus'
 import FormulaInput from '@/components/input/FormulaInput.vue'
 import CalculatorButtons from '@/components/button/CalculatorButtons.vue'
 
+const props = defineProps<{
+  trialCount: number,
+  wordLength: number,
+  answerFormula: Array<String>,
+}>()
 /**
- * 計算式を当てる試行回数（行番号に該当）
+ * 計算式を当てる試行回数のカウンタ（行番号に該当）
  */
 const count = ref(0)
 /**
@@ -13,16 +18,16 @@ const count = ref(0)
  */
 const focusPosition = ref(0)
 /**
- * 回答
+ * 指定した数式が完全に一致したか
  */
-const answer = ["3", "+", "2", "*", "8", "=", "1", "9"]
+const isFinished = ref<boolean>(false)
 /**
  * 入力欄の文字列を保持する変数を作成
  */
-const formulaTable = new Array<Array<string>>(6);
-for (let x = 0; x < 6; x++) {
-  formulaTable[x] = new Array<string>(8)
-  for (let y = 0; y < 8; y++) {
+const formulaTable = new Array<Array<string>>(props.trialCount);
+for (let x = 0; x < props.trialCount; x++) {
+  formulaTable[x] = new Array<string>(props.wordLength)
+  for (let y = 0; y < props.wordLength; y++) {
     formulaTable[x][y] = ""
   }
 }
@@ -30,10 +35,10 @@ const formula = ref(formulaTable)
 /**
  * 入力した値と回答を比較した結果を保持する変数を作成
  */
-const statusTable = new Array<Array<string>>(6);
-for (let x = 0; x < 6; x++) {
-  statusTable[x] = new Array<string>(8)
-  for (let y = 0; y < 8; y++) {
+const statusTable = new Array<Array<string>>(props.trialCount);
+for (let x = 0; x < props.trialCount; x++) {
+  statusTable[x] = new Array<string>(props.wordLength)
+  for (let y = 0; y < props.wordLength; y++) {
     statusTable[x][y] = ""
   }
 }
@@ -42,10 +47,6 @@ const status = ref(statusTable)
  * ボタンのステータス
  */
 const buttonStatus = ref(new Map<string, string>)
-/**
- * 指定した数式が完全に一致したか
- */
-const isFinished = ref<boolean>(false)
 /**
  * 指定した列番号と現在の試行回数に対応する位置をフォーカスします。
  * @param column 列番号
@@ -70,12 +71,8 @@ const update = (word: string, column: number,) => {
  * @param word 文字
  */
 const setSquares = (word: string) => {
-  if (isFinished.value) {
-    ElMessage('既に正解しております。')
-    return
-  }
-  if (count.value > 5) {
-    ElMessage('既に終了しております。')
+  // ゲームが終了していれば先の処理を行わない
+  if (isGameOver()) {
     return
   }
 
@@ -89,7 +86,7 @@ const setSquares = (word: string) => {
     } else {
       focus(focusPosition.value)
     }
-  } else if (focusPosition.value < 7) {
+  } else if (focusPosition.value < props.wordLength - 1) {
     // フォーカス位置が最後でなければ1つ先に進める
     focus(focusPosition.value + 1)
   } else {
@@ -100,26 +97,22 @@ const setSquares = (word: string) => {
  * Enter ボタンを押した際の処理を実行します。
  */
 const enter = () => {
-  if (isFinished.value) {
-    ElMessage('既に正解しております。')
+  // ゲームが終了していれば先の処理を行わない
+  if (isGameOver()) {
     return
   }
-  if (count.value > 5) {
-    ElMessage('既に終了しております。')
-    return
-  }
-  if (formulaTable[count.value].some(word => word === "")) {
-    ElMessage.error('数式が全て入力されておりません。');
+  // 入力した数式が正しいものでなければ先の処理を行わない
+  if (!isCorrect()) {
     return
   }
   // 入力した数式と回答を比較し、数式とボタンのステータス情報を更新する
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < props.wordLength; i++) {
     const value = formulaTable[count.value][i]
-    if (answer[i] === value) {
+    if (props.answerFormula[i] === value) {
       // 位置と文字列が一致すれば success を設定
       status.value[count.value][i] = "success"
       buttonStatus.value.set(value, "success")
-    } else if (answer.some(word => word === value)) {
+    } else if (props.answerFormula.some(word => word === value)) {
       // 文字列が含まれていれば primary を設定
       status.value[count.value][i] = "primary"
       // 初めて指定したか、既に位置まで一致した状態でなければ値を設定
@@ -135,15 +128,16 @@ const enter = () => {
   }
   // 試行回数をインクリメント
   count.value += 1
+  // 全て位置と文字列が一致していれば正解とする
   if (status.value[count.value - 1].every(st => st === "success")) {
-    console.log("You've finished eating Noodle!")
     ElMessage({
       message: count.value + '回目の入力で正解しました！',
       type: 'success',
     })
     isFinished.value = true
   }
-  if (count.value >= 6) {
+  // count の値が trialCount 以上になったら問題は終了とする
+  if (!isFinished.value && count.value >= props.trialCount) {
     ElMessage({
       message: '本日の問題は終了しました。',
       type: 'warning',
@@ -151,14 +145,48 @@ const enter = () => {
   }
   focus(0)
 }
+/**
+ * 指定されている数式が正しいものかを確認します。
+ */
+const isCorrect = () => {
+  // 数式を入力する箇所に空文字があれば false
+  if (formulaTable[count.value].some(word => word === "")) {
+    ElMessage.error('数式が全て入力されておりません。入力を確認してください。');
+    return false
+  }
+  // 数式に等号が 1 つも含まれていなければ false
+  if (!formulaTable[count.value].some(word => word === '=')) {
+    ElMessage.error('数式の中に等号が存在しておりません。入力を確認してください。');
+    return false
+  }
+  // TODO: 逆ポーランド記法で入力した数式の等号が成り立つかを確認する処理を実装
+  return true
+}
+/**
+ * 既にゲームが終了しているかを返却します。
+ * ゲームが終了している場合は、その内容に応じたメッセージを表示します。
+ */
+const isGameOver = () => {
+  // isFinished が true であれば既に正解しているためメッセージを表示して終了
+  if (isFinished.value) {
+    ElMessage('本日の問題は既に正解しております。')
+    return true
+  }
+  // count の値が trialCount 以上であれば既に試行回数を終了しているためメッセージを表示して終了
+  if (count.value >= props.trialCount) {
+    ElMessage('本日の問題は既に終了しております。')
+    return true
+  }
+  return false
+}
 </script>
 
 <template>
   <div class="contents">
     <!-- 入力欄 -->
-    <div class="contents__input">
-      <div v-for="i of 6" :key="i" class="contents__input__row">
-        <FormulaInput :row="i" :column="8" :squares="formula[i-1]" :status="status[i-1]"
+    <div class="contents__input" :style="{'--word-length': props.wordLength}">
+      <div v-for="i of props.trialCount" :key="i" class="contents__input__row">
+        <FormulaInput :row="i" :column="props.wordLength" :squares="formula[i-1]" :status="status[i-1]"
                       :is-disabled="count !== i-1 || isFinished" @focus="focus" @update="update"/>
       </div>
     </div>
@@ -175,7 +203,7 @@ const enter = () => {
   &__input {
     display: flex;
     flex-direction: column;
-    width: calc(50px * 8);
+    width: calc(50px * var(--word-length));
     &__row {
       display: flex;
       &__input {
